@@ -13,9 +13,6 @@ public class AccountTypeServiceImpl implements AccountTypeService {
     @Override
     public List<AccountTypeDto> findAll() {
         List<AccountType> accountTypes = accountTypeMapper.selectAll();
-//        List<AccountTypeDto> accountTypeDtosList = accountTypes.stream().
-//                map(accountType -> new AccountTypeDto(accountType.getName())).toList();
-//        use mapstruct instead
 
         return accountTypeMapStruct.toDto(accountTypes);
     }
