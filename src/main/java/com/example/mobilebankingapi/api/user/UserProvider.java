@@ -21,4 +21,18 @@ public class UserProvider {
             WHERE("id = #{id}");
         }}.toString();
     }
+
+    public String buildDeleteByIdSql(){
+        return new SQL(){{
+            DELETE_FROM(tableName);
+            WHERE("id = #{id}");
+        }}.toString();
+    }
+    public String buildUpdateIsDeletedStatusSql(){
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("is_deleted = #{isDeleted}");
+            WHERE("id = #{id}");
+        }}.toString();
+    }
 }

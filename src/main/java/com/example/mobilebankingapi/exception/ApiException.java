@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +33,16 @@ public class ApiException {
                 timestamp(LocalDateTime.now())
                 .message("Validation Error check error details ")
                 .error(errors)
+                .build();
+    }
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(ReflectiveOperationException.class)
+    public BaseError<?> handleException(ResponseStatusException e){
+        return BaseError.builder().status(false).
+                code(e.getStatusCode().value()).
+                timestamp(LocalDateTime.now())
+                .message("Internal Server Error")
+                .error(e.getReason())
                 .build();
     }
 }
