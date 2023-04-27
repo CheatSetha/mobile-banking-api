@@ -7,13 +7,18 @@ public class UserProvider {
     public String buildInsertSql(){
         return new SQL(){{
             INSERT_INTO(tableName);
-            VALUES("name", "#{user.name}");
-            VALUES("gender","#{user.gender}");
-            VALUES("one_signal_id","#{user.oneSignalId}");
-            VALUES("student_card_id","#{user.studentCardId}");
-            VALUES("is_student","#{user.isStudent}");
-            VALUES("is_deleted","FALSE");
-
+            VALUES("name", "#{u.name}");
+            VALUES("gender","#{u.gender}");
+            VALUES("one_signal_id","#{u.oneSignalId}");
+            VALUES("student_card_id","#{u.studentCardId}");
+            VALUES("is_student","#{u.isStudent}");
+        }}.toString();
+    }
+    public String buildSelectByIdSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("id = #{id}");
         }}.toString();
     }
 }
