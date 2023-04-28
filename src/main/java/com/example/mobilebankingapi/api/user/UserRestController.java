@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,4 +53,11 @@ public class UserRestController {
                 .timestamp(LocalDateTime.now())
                 .data(updatedId).build();
     }
+    @GetMapping("/all")
+    public BaseRest<?> findAll() {
+        List<User> users = userService.findAll();
+        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been found").timestamp(LocalDateTime.now())
+                .data(users).build();
+    }
+
 }

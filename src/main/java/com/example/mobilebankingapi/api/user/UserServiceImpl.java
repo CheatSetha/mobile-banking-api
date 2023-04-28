@@ -52,5 +52,11 @@ public class UserServiceImpl implements  UserService {
                 String.format("User with id %d not found", id));
     }
 
+    @Override
+    public List<User> findAll() {
+        return userMapper.selectAll();
+    }
+
+
 
 }

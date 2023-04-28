@@ -3,6 +3,7 @@ package com.example.mobilebankingapi.api.user;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mapper
@@ -12,8 +13,13 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "u.id")
     void insert(@Param("u") User user);
     @SelectProvider(type = UserProvider.class, method = "buildSelectByIdSql")
-    @Result(column = "student_card_id", property = "studentCardId")
-    @Result(column = "is_student", property = "isStudent")
+    @Results({
+            @Result(column = "name", property = "name"),
+            @Result(column = "gender",property = "gender"),
+            @Result(column = "student_card_id", property = "studentCardId"),
+            @Result(column = "is_student", property = "isStudent"),
+            @Result(column = "is_deleted", property = "isDeleted")
+    })
     Optional<User> selectById(@Param("id") Integer   id);
     @Select("SELECT EXISTS(SELECT * FROM users WHERE id = #{id})")
     boolean isUserExist(@Param("id") Integer id);
@@ -21,5 +27,13 @@ public interface UserMapper {
     void deleteById(@Param("id") Integer id);
     @UpdateProvider(type = UserProvider.class, method = "buildUpdateIsDeletedStatusSql")
     void updateIsDeletedStatus(@Param("id") Integer id , @Param("isDeleted") Boolean isDeleted);
+    @SelectProvider(type = UserProvider.class, method = "buildSelectAllSql")
+    @Results({
+            @Result(column = "student_card_id", property = "studentCardId"),
+            @Result(column = "is_student", property = "isStudent"),
+            @Result(column = "is_deleted", property = "isDeleted")
+    })
+    List<User> selectAll();
+
 
 }

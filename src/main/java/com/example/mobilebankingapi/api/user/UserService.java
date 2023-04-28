@@ -12,5 +12,6 @@ public interface UserService {
 
     Integer deleteUserById(Integer id);
     Integer updateIsDeletedStatus(Integer id, boolean isDeleted);
+    List<User> findAll();
 
 }

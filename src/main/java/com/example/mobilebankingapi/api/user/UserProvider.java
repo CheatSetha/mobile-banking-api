@@ -35,4 +35,10 @@ public class UserProvider {
             WHERE("id = #{id}");
         }}.toString();
     }
+    public String buildSelectAllSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+        }}.toString();
+    }
 }
