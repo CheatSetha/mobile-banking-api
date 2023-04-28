@@ -1,5 +1,6 @@
 package com.example.mobilebankingapi.api.user;
 
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -13,5 +14,7 @@ public interface UserService {
     Integer deleteUserById(Integer id);
     Integer updateIsDeletedStatus(Integer id, boolean isDeleted);
     List<User> findAll();
+//    get all user with pagination
+    PageInfo<UserDto> findAllUser (int page , int limit);
 
 }

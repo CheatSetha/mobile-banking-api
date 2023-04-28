@@ -13,9 +13,7 @@ public interface UserMapper {
     @Options(useGeneratedKeys = true, keyProperty = "u.id")
     void insert(@Param("u") User user);
     @SelectProvider(type = UserProvider.class, method = "buildSelectByIdSql")
-    @Results({
-            @Result(column = "name", property = "name"),
-            @Result(column = "gender",property = "gender"),
+    @Results(id = "userResultMap", value = {
             @Result(column = "student_card_id", property = "studentCardId"),
             @Result(column = "is_student", property = "isStudent"),
             @Result(column = "is_deleted", property = "isDeleted")
@@ -28,12 +26,13 @@ public interface UserMapper {
     @UpdateProvider(type = UserProvider.class, method = "buildUpdateIsDeletedStatusSql")
     void updateIsDeletedStatus(@Param("id") Integer id , @Param("isDeleted") Boolean isDeleted);
     @SelectProvider(type = UserProvider.class, method = "buildSelectAllSql")
-    @Results({
-            @Result(column = "student_card_id", property = "studentCardId"),
-            @Result(column = "is_student", property = "isStudent"),
-            @Result(column = "is_deleted", property = "isDeleted")
-    })
+    @ResultMap("userResultMap")
     List<User> selectAll();
+
+//    with pagination
+    @SelectProvider(type = UserProvider.class, method = "buildSelectSql")
+    @ResultMap("userResultMap")
+    List<User> select();
 
 
 }

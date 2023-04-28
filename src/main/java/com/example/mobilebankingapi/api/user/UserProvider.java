@@ -41,4 +41,15 @@ public class UserProvider {
             FROM(tableName);
         }}.toString();
     }
+
+//    with pagination
+
+    public String buildSelectSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("is_deleted = false");
+            ORDER_BY("id DESC");
+        }}.toString();
+    }
 }

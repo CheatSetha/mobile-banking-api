@@ -1,5 +1,8 @@
 package com.example.mobilebankingapi.api.user;
 
+import com.github.pagehelper.ISelect;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -58,5 +61,15 @@ public class UserServiceImpl implements  UserService {
     }
 
 
+//    get all user with pagination
+    @Override
+    public PageInfo<UserDto> findAllUser(int page, int limit) {
+//        PageHelper.startPage(page, limit);
 
+       PageInfo<User> userPageInfo =  PageHelper.startPage(page, limit).doSelectPageInfo(userMapper::select);
+//       convert userPageInfo to userDtoPageInfo
+//        bcuz we can't return userPageInfo to client
+//        we have to convert it to userDtoPageInfo. it's a dto
+       return userMapStruct.userPageInfoToUserDtoPageInfo(userPageInfo);
+    }
 }

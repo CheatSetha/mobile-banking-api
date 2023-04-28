@@ -1,6 +1,7 @@
 package com.example.mobilebankingapi.api.user;
 
 import com.example.mobilebankingapi.base.BaseRest;
+import com.github.pagehelper.PageInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class UserRestController {
                 .timestamp(LocalDateTime.now())
                 .data(deletedId).build();
     }
+
     @PutMapping("/{id}")
     public BaseRest<?> updateIsDeletedStatus(@PathVariable Integer id, @RequestBody IsDeletedDto dto) {
         Integer updatedId = userService.updateIsDeletedStatus(id, dto.status());
@@ -53,11 +55,22 @@ public class UserRestController {
                 .timestamp(LocalDateTime.now())
                 .data(updatedId).build();
     }
+
     @GetMapping("/all")
     public BaseRest<?> findAll() {
         List<User> users = userService.findAll();
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been found").timestamp(LocalDateTime.now())
                 .data(users).build();
     }
+//learn from cher
+    @GetMapping
+    public BaseRest<?> findAllUser(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
+                                   @RequestParam(name = "limit", required = false, defaultValue = "10") int limit) {
+        PageInfo<UserDto> userDtoPageInfo = userService.findAllUser(page, limit);
+        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been found").timestamp(LocalDateTime.now())
+                .data(userDtoPageInfo).build();
+
+    }
+
 
 }
