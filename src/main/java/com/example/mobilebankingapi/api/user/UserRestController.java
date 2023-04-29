@@ -45,7 +45,7 @@ public class UserRestController {
                 .data(deletedId).build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/is-deleted")
     public BaseRest<?> updateIsDeletedStatus(@PathVariable Integer id, @RequestBody IsDeletedDto dto) {
         Integer updatedId = userService.updateIsDeletedStatus(id, dto.status());
         return BaseRest.builder()
@@ -71,6 +71,42 @@ public class UserRestController {
                 .data(userDtoPageInfo).build();
 
     }
+
+//    upadate user
+    @PutMapping("/{id}")
+    public BaseRest<?> updateUser(@PathVariable("id") Integer id, @RequestBody @Valid UpdateUserDto updateUserDto) {
+        UserDto userDto = userService.updateUser(id, updateUserDto);
+        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been updated").timestamp(LocalDateTime.now())
+                .data(userDto).build();
+    }
+//    search user by name
+    @GetMapping("/search-by-name")
+    public BaseRest<?> searchUserByName(@RequestParam(name = "name") String name) {
+        List<UserDto> userDtoList = userService.searchUserByName(name);
+        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been found").timestamp(LocalDateTime.now())
+                .data(userDtoList).build();
+    }
+    @GetMapping("/search-by-studentCardId")
+    public BaseRest<?> searchByStudentCardId(@RequestParam("studentCardId") String studentCardId){
+        List<UserDto> userDtos = userService.searchUserByStudentCardId(studentCardId);
+        log.info(studentCardId);
+        return BaseRest.builder().status(true)
+                .code(HttpStatus.OK.value())
+                .message("user have been found")
+                .timestamp(LocalDateTime.now())
+                .data(userDtos)
+                .build();
+    }
+
+//    search user by name or student id card
+    @GetMapping("/search")
+    public BaseRest<?> searchUserByNameOrStudentCardId(@RequestParam(name = "name") String name,
+                                                       @RequestParam(name = "studentCardId") String studentCardId) {
+        List<UserDto> userDtoList = userService.searchUserByNameOrStudentCardId(name, studentCardId);
+        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been found").timestamp(LocalDateTime.now())
+                .data(userDtoList).build();
+    }
+
 
 
 }

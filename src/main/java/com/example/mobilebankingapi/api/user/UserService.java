@@ -17,4 +17,13 @@ public interface UserService {
 //    get all user with pagination
     PageInfo<UserDto> findAllUser (int page , int limit);
 
+    UserDto updateUser(Integer id, UpdateUserDto updateUserDto);
+//    search user by name
+    List<UserDto> searchUserByName(String name);
+//    search user by studentCardId
+    List<UserDto> searchUserByStudentCardId(String studentCardId);
+
+    //search user by name or student card id
+    List<UserDto> searchUserByNameOrStudentCardId(String name, String studentCardId);
+
 }

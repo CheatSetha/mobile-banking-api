@@ -52,4 +52,24 @@ public class UserProvider {
             ORDER_BY("id DESC");
         }}.toString();
     }
+    public String buildUpdateSql(){
+        return new SQL(){{
+            UPDATE(tableName);
+            SET("name = #{u.name}");
+            SET("gender = #{u.gender}");
+            WHERE("id = #{u.id}");
+        }}.toString();
+
+    }
+
+    //search user by name or student card id
+    public String buildSearchSql(){
+        return new SQL(){{
+            SELECT("*");
+            FROM(tableName);
+            WHERE("name ILIKE CONCAT('%',#{name},'%')");
+            OR();
+            WHERE("student_card_id ILIKE CONCAT('%',#{studentCardId},'%')");
+        }}.toString();
+    }
 }

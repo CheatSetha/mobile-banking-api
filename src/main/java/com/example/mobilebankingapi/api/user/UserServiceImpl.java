@@ -72,4 +72,48 @@ public class UserServiceImpl implements  UserService {
 //        we have to convert it to userDtoPageInfo. it's a dto
        return userMapStruct.userPageInfoToUserDtoPageInfo(userPageInfo);
     }
+
+    @Override
+    public UserDto updateUser(Integer id, UpdateUserDto updateUserDto) {
+      if (userMapper.isUserExist(id)){
+          User user = userMapStruct.updateUserDtoToUser(updateUserDto);
+          user.setId(id);
+          userMapper.update(user);
+          return this.findUserById(id);
+      }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with id %d not found", id));
+    }
+
+    @Override
+    public List<UserDto> searchUserByName(String name) {
+        List<User> users = userMapper.searchByName(name);
+        if (users.size() > 0){
+            return userMapStruct.userListToUserDtoList(users);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with name %s not found", name));
+    }
+
+    @Override
+    public List<UserDto> searchUserByStudentCardId(String studentCardId) {
+       List<User> users = userMapper.searchByStudentIdCard(studentCardId);
+       if (users.size()>0){
+           return userMapStruct.userListToUserDtoList(users);
+       }
+       throw  new ResponseStatusException(HttpStatus.NOT_FOUND,
+               String.format("user with studentCardId %s not found",studentCardId));
+    }
+
+
+
+    @Override
+    public List<UserDto> searchUserByNameOrStudentCardId(String name, String studentCardId) {
+        List<User> users = userMapper.search(name, studentCardId);
+        if(users.size() > 0){
+            return userMapStruct.userListToUserDtoList(users);
+        }
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                String.format("User with name %s or studentCardId %s not found", name, studentCardId));
+    }
 }
