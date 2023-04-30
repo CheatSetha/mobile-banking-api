@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/users")
 @Slf4j
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserRestController {
     private final UserService userService;
 

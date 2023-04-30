@@ -15,28 +15,30 @@ import java.time.LocalDateTime;
 @Slf4j
 public class AccountTypeRestController {
     private final AccountTypeService accountTypeService;
+
     @GetMapping
     //    <?> any type is okay
     public BaseRest<?> findAll() {
-    var accountTypeDtoList = accountTypeService.findAll();
-    return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been found").timestamp(LocalDateTime.now())
-            .data(accountTypeDtoList).build();
-
-
+        var accountTypeDtoList = accountTypeService.findAll();
+        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been found").timestamp(LocalDateTime.now())
+                .data(accountTypeDtoList).build();
     }
+
     @PostMapping
-    public BaseRest<?> createNewAccountType(@RequestBody @Valid CreateAccountTypeDto createAccountTypeDto){
+    public BaseRest<?> createNewAccountType(@RequestBody @Valid CreateAccountTypeDto createAccountTypeDto) {
         AccountTypeDto accountTypeDto = accountTypeService.createNewAccountType(createAccountTypeDto);
         log.info("DTO + {}", createAccountTypeDto);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been created").timestamp(LocalDateTime.now())
                 .data(accountTypeDto).build();
     }
+
     @GetMapping("/{id}")
     public BaseRest<?> findAccountTypeById(@PathVariable("id") Integer id) {
         AccountTypeDto accountTypeDto = accountTypeService.findAccountTypeById(id);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been found").timestamp(LocalDateTime.now())
                 .data(accountTypeDto).build();
     }
+
     @DeleteMapping("/{id}")
     public BaseRest<?> deleteAccountTypeById(@PathVariable("id") Integer id) {
         Integer deletedId = accountTypeService.deleteAccountTypeById(id);
@@ -45,7 +47,7 @@ public class AccountTypeRestController {
     }
 
     @PutMapping("/{id}")
-    public BaseRest<?> updateAccountType(@PathVariable("id") Integer id, @RequestBody @Valid CreateAccountTypeDto createAccountTypeDto){
+    public BaseRest<?> updateAccountType(@PathVariable("id") Integer id, @RequestBody @Valid CreateAccountTypeDto createAccountTypeDto) {
         AccountTypeDto accountTypeDto = accountTypeService.update(id, createAccountTypeDto);
         return BaseRest.builder().status(true).
                 code(HttpStatus.OK.value()).

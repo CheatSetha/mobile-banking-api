@@ -7,9 +7,9 @@ import java.util.List;
 //not my batis mapper
 @Mapper(componentModel = "spring")
 public interface AccountTypeMapStruct {
-    //convert model to dto
+    //convert pojo to dto
      List<AccountTypeDto> toDto(List<AccountType> model);
-    //convert dto to model
+    //convert dto to pojo
     AccountTypeDto accountTypeToAccountTypeDto(AccountType accountType);
     AccountType createAccountTypeDtoToAccountType(CreateAccountTypeDto createAccountTypeDto);
 
