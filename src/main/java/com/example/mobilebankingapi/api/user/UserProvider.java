@@ -72,4 +72,5 @@ public class UserProvider {
             WHERE("student_card_id ILIKE CONCAT('%',#{studentCardId},'%')");
         }}.toString();
     }
+
 }

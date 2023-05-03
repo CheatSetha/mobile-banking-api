@@ -73,6 +73,7 @@ public class UserServiceImpl implements  UserService {
        return userMapStruct.userPageInfoToUserDtoPageInfo(userPageInfo);
     }
 
+
     @Override
     public UserDto updateUser(Integer id, UpdateUserDto updateUserDto) {
       if (userMapper.isUserExist(id)){
@@ -116,4 +117,7 @@ public class UserServiceImpl implements  UserService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                 String.format("User with name %s or studentCardId %s not found", name, studentCardId));
     }
+
+
+
 }
