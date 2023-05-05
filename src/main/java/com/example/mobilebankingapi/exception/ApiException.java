@@ -45,4 +45,16 @@ public class ApiException {
                 .error(e.getReason())
                 .build();
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(RuntimeException.class)
+    public BaseError<?> handleException(RuntimeException e){
+        return BaseError.builder().status(false).
+                code(HttpStatus.INTERNAL_SERVER_ERROR.value()).
+                timestamp(LocalDateTime.now())
+                .message("something went wrong..! please check and fix by yourself :(")
+                .error(e.getMessage())
+                .build();
+    }
+
 }

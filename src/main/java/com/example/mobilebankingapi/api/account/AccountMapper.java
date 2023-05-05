@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 @Repository
@@ -25,4 +26,21 @@ public interface AccountMapper {
     List<Account> selectAll();
     @Select("SELECT * FROM account_types WHERE id = #{id}")
     AccountType  selectAccountTypes(@Param("id") Integer id);
+
+
+    @Select("SELECT EXISTS(SELECT * FROM accounts WHERE id = #{id})")
+    boolean isAccountExist(@Param("id") Integer id);
+
+    @ResultMap("accountResultMap")
+    @SelectProvider(type = AccountProvider.class, method = "buildSelectByIdSql")
+    Optional<Account> selectById(@Param("id") Integer id);
+
+
+    @Delete("DELETE FROM accounts WHERE id = #{id}")
+    void deleteById(@Param("id") Integer id);
+
+//    create new account
+    @InsertProvider(type = AccountProvider.class, method = "buildInsertSql")
+    @Options(useGeneratedKeys = true, keyProperty = "a.id")
+    void insert(@Param("a")Account account);
 }
