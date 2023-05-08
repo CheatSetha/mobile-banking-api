@@ -88,7 +88,7 @@ public class FileServiceImple implements FileService {
     }
 
     @Override
-    public Resource load(String fileName) {
+    public Resource download(String fileName) {
         try {
             Path file = Paths.get(fileServerPath + fileName);
             Resource resource = new UrlResource(file.toUri());

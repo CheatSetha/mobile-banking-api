@@ -46,5 +46,5 @@ public interface FileService {
 //    delete all file
     boolean deleteAllFile();
 //    download file via uri
-    Resource load(String fileName);
+    Resource download(String fileName);
 }

@@ -1,19 +1,15 @@
 package com.example.mobilebankingapi.api.file;
 
 import com.example.mobilebankingapi.base.BaseRest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,6 +41,7 @@ public class FileRestController {
         boolean isDeleted = fileService.deleteFile(fileName);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("file have been deleted successfully").timestamp(LocalDateTime.now()).data(isDeleted).build();
     }
+
     @DeleteMapping("/delete-all")
     public BaseRest<?> deleteAllFiles() {
         boolean isDeleted = fileService.deleteAllFile();
@@ -53,29 +50,28 @@ public class FileRestController {
 
 
     @GetMapping
-    public BaseRest<?> getAllFiles(){
+    public BaseRest<?> getAllFiles() {
         List<FileDto> filesDto = fileService.getAllFiles();
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("files have been fetched successfully").timestamp(LocalDateTime.now()).data(filesDto).build();
     }
 
     @GetMapping("/{name}")
-    public BaseRest<?> getFileByName(@PathVariable("name") String name){
+    public BaseRest<?> getFileByName(@PathVariable("name") String name) {
         FileDto fileDto = fileService.getFileByName(name);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("file have been fetched successfully").timestamp(LocalDateTime.now()).data(fileDto).build();
     }
+
     @GetMapping("/search")
-    public BaseRest<?> searchFileByName(@RequestParam("name") String name){
+    public BaseRest<?> searchFileByName(@RequestParam("name") String name) {
         List<FileDto> filesDto = fileService.searchFileByName(name);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("files have been fetched successfully").timestamp(LocalDateTime.now()).data(filesDto).build();
     }
 
-// define download file method
-@GetMapping("/download/{filename}")
-public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-    Resource file = fileService.load(filename);
-    return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-}
-
-
+    // define download file method
+    @GetMapping("/download/{filename}")
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+        Resource file = fileService.download(filename);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
 }
