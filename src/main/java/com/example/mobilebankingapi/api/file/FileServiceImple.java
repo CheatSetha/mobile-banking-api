@@ -4,17 +4,24 @@ import com.example.mobilebankingapi.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -80,6 +87,23 @@ public class FileServiceImple implements FileService {
         }
     }
 
+    @Override
+    public Resource load(String fileName) {
+        try {
+            Path file = Paths.get(fileServerPath + fileName);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            log.error("file load error: {}", e.getMessage());
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
 
     @Override
     public List<FileDto> getAllFiles() {
@@ -111,7 +135,8 @@ public class FileServiceImple implements FileService {
             //get size of file
             long size = Files.size(path);
             String url = String.format("%s%s", fileBaseUrl, name);
-            return FileDto.builder().name(name).extension(extension).size(size).url(url).build();
+            String donwloadUrl = String.format("%s%s", fileBaseDownloadUrl, name);
+            return FileDto.builder().name(name).extension(extension).size(size).url(url).donwloadUrl(donwloadUrl).build();
         } catch (IOException e) {
             log.error("file get by name error: {}", e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "file not found ");
@@ -130,7 +155,8 @@ public class FileServiceImple implements FileService {
                     //get size of file
                     long size = file.toFile().length();
                     String url = String.format("%s%s", fileBaseUrl, fileName);
-                    filesDto.add(FileDto.builder().name(fileName).extension(extension).size(size).url(url).build());
+                    String downloadUrl = String.format("%s%s", fileBaseDownloadUrl, fileName);
+                    filesDto.add(FileDto.builder().name(fileName).extension(extension).size(size).url(url).donwloadUrl(downloadUrl).build());
                 }
             });
         } catch (IOException e) {
@@ -138,5 +164,13 @@ public class FileServiceImple implements FileService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "file not found");
         }
         return filesDto;
+
     }
+
+
+
+
+
+
 }
+

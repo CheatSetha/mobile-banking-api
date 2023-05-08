@@ -1,18 +1,26 @@
 package com.example.mobilebankingapi.api.file;
 
 import com.example.mobilebankingapi.base.BaseRest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.annotations.Delete;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/files")
+@Slf4j
 public class FileRestController {
     private final FileService fileService;
 
@@ -55,10 +63,19 @@ public class FileRestController {
         FileDto fileDto = fileService.getFileByName(name);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("file have been fetched successfully").timestamp(LocalDateTime.now()).data(fileDto).build();
     }
-
     @GetMapping("/search")
     public BaseRest<?> searchFileByName(@RequestParam("name") String name){
         List<FileDto> filesDto = fileService.searchFileByName(name);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("files have been fetched successfully").timestamp(LocalDateTime.now()).data(filesDto).build();
     }
+
+// define download file method
+@GetMapping("/download/{filename}")
+public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+    Resource file = fileService.load(filename);
+    return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+}
+
+
 }
