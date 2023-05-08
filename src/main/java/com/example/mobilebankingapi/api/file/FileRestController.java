@@ -34,7 +34,7 @@ public class FileRestController {
         List<FileDto> fileDtos = fileService.uploadMultipleFiles(files);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("files have been uploaded successfully").timestamp(LocalDateTime.now()).data(fileDtos).build();
     }
-//    delete file if exist
+
 
     @DeleteMapping("/{fileName}")
     public BaseRest<?> deleteFile(@PathVariable("fileName") String fileName) {
@@ -67,7 +67,6 @@ public class FileRestController {
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("files have been fetched successfully").timestamp(LocalDateTime.now()).data(filesDto).build();
     }
 
-    // define download file method
     @GetMapping("/download/{filename}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         Resource file = fileService.download(filename);

@@ -46,5 +46,12 @@ public interface FileService {
 //    delete all file
     boolean deleteAllFile();
 //    download file via uri
+
+    /**
+     * download file via uri
+     * took me 4 day to figure out how to download file via uri
+     * @param fileName
+     * @return
+     */
     Resource download(String fileName);
 }

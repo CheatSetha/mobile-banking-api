@@ -123,8 +123,6 @@ public class FileServiceImple implements FileService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "file get all error");
         }
         return filesDto;
-
-
     }
 
     @Override
@@ -166,11 +164,6 @@ public class FileServiceImple implements FileService {
         return filesDto;
 
     }
-
-
-
-
-
 
 }
 
