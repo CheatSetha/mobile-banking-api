@@ -30,6 +30,7 @@ public interface FileService {
      */
     boolean deleteFile(String fileName);
 
+
     /**
      * get all files and return as list
      * @return
@@ -43,9 +44,14 @@ public interface FileService {
     List<FileDto> searchFileByName(String name);
 
 
-//    delete all file
+
+
+    /**
+     * use to find file by name
+     * @return
+     */
     boolean deleteAllFile();
-//    download file via uri
+
 
     /**
      * download file via uri
@@ -54,4 +60,8 @@ public interface FileService {
      * @return
      */
     Resource download(String fileName);
+
+    Resource downloadByName(
+            String name
+    );
 }

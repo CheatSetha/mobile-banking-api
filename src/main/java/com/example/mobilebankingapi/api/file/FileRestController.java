@@ -4,8 +4,8 @@ import com.example.mobilebankingapi.base.BaseRest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -67,10 +67,20 @@ public class FileRestController {
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("files have been fetched successfully").timestamp(LocalDateTime.now()).data(filesDto).build();
     }
 
-    @GetMapping("/download/{filename}")
-    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
-        Resource file = fileService.download(filename);
+    //    @GetMapping("/download/{filename}")
+//    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+//        Resource file = fileService.download(filename);
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+//    }
+    @GetMapping("/download/{name}")
+    public ResponseEntity<?> dlfile(@PathVariable String name) {
+        Resource fiResource = fileService.downloadByName(name);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+                .contentType((MediaType.APPLICATION_OCTET_STREAM))
+                .header("Content-Disposition", "attachment; filename=")
+                .body(fiResource)
+                ;
     }
+
 }

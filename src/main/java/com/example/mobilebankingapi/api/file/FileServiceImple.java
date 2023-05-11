@@ -68,7 +68,8 @@ public class FileServiceImple implements FileService {
         }
     }
 
-    //    delete all files
+
+    // delete all files
     @Override
     public boolean deleteAllFile() {
         try {
@@ -103,6 +104,25 @@ public class FileServiceImple implements FileService {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+//follow teacher's teach
+    @Override
+    public Resource downloadByName(String name) {
+        try {
+            Path file = Paths.get(fileServerPath + name);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            } else {
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (MalformedURLException e) {
+            log.error("file load error: {}", e.getMessage());
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
+    }
+
+
 
 
     @Override
