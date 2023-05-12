@@ -1,5 +1,6 @@
 package com.example.mobilebankingapi.api.user;
 
+import com.example.mobilebankingapi.api.auth.wep.RegisterDto;
 import com.github.pagehelper.PageInfo;
 import org.mapstruct.Mapper;
 
@@ -14,4 +15,5 @@ public interface UserMapStruct {
     User updateUserDtoToUser(UpdateUserDto updateUserDto);
     PageInfo<UserDto> userPageInfoToUserDtoPageInfo(PageInfo<User> userPageInfo);
     List<UserDto> userListToUserDtoList(List<User> userList);
+    User registerDtoToUser(RegisterDto registerDto);
 }

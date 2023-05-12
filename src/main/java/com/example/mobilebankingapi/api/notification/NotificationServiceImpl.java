@@ -29,23 +29,19 @@ public class NotificationServiceImpl implements NotificatinoService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("accept", "application/json");
         httpHeaders.set("content-type", "application/json");
-        httpHeaders.set("Authorization", "Basic "+restApiKey);
+        httpHeaders.set("Authorization", "Basic " + restApiKey);
         NotificationDto body = NotificationDto.builder()
                 .appId(appId)
                 .includedSegments(notificationDto.includedSegments())
                 .contents(notificationDto.contents()).build();
-        HttpEntity<NotificationDto> requestBody = new HttpEntity<>(body,httpHeaders);
+        HttpEntity<NotificationDto> requestBody = new HttpEntity<>(body, httpHeaders);
 
 
         ResponseEntity<?> response = restTemplate.postForEntity(
                 "https://onesignal.com/api/v1/notifications",
                 requestBody,
                 Map.class
-                );
-    if(response.getStatusCode() == HttpStatus.OK){
-        return true;
-    }else {
-        return false;
-    }
+        );
+        return response.getStatusCode() == HttpStatus.OK;
     }
 }
