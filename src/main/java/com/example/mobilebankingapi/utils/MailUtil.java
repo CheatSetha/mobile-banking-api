@@ -22,12 +22,15 @@ public class MailUtil {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
 
         // 1. Prepare template
+
         Context context = new Context();
         context.setVariable("data", meta.data);
         String htmlTemplate = templateEngine.process(meta.templateUrl, context);
+
         helper.setText(htmlTemplate, true);
 
         // 2. Prepare email information
+
         helper.setTo(meta.to);
         helper.setFrom(meta.from);
         helper.setSubject(meta.subject);
@@ -35,7 +38,6 @@ public class MailUtil {
         // 3. Send mail
         javaMailSender.send(mimeMessage);
     }
-
     @Getter
     @Setter
     @AllArgsConstructor

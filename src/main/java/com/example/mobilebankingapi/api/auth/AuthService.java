@@ -6,4 +6,8 @@ public interface AuthService {
     void register(RegisterDto registerDto);
 
     void verify(String email);
+//    check verify code
+    void checkVerify(String email, String verifiedCode);
+
+
 }

@@ -5,6 +5,7 @@ import com.example.mobilebankingapi.api.auth.wep.RegisterDto;
 import com.example.mobilebankingapi.base.BaseRest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthRestController {
 
     private final AuthService authService;
@@ -32,7 +34,7 @@ public class AuthRestController {
                 .build();
     }
 
-    @GetMapping("/verify")
+    @PostMapping("/verify")
     public BaseRest<?> verify(@RequestParam String email) {
         authService.verify(email);
         return BaseRest.builder()
@@ -43,6 +45,20 @@ public class AuthRestController {
                 .data(email)
                 .build();
     }
+//    check verify code
+    @GetMapping("/check-verify")
+    public BaseRest<?> checkVerify(@RequestParam String email, @RequestParam String verifiedCode) {
+       authService.checkVerify(email, verifiedCode);
+        log.info("Email: {}", email);
+        log.info("Verified Code: {}", verifiedCode);
 
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("You have been verified successfully")
+                .timestamp(LocalDateTime.now())
+                .data(email)
+                .build();
+    }
 
-}
+    }

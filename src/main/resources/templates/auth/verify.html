@@ -314,13 +314,13 @@ padding: 0 35px 40px;">
 	font-weight: 500;
 	margin-top: 40px;
 	margin-bottom: 0;
-">Oh yeah haha </h1>
+">hello kon papa </h1>
                         <p class="near_title last" style="margin-top: 10px;margin-bottom: 0;">Please verify
                             that your
-                            email address is hello@SmilesDavis.yeah, and that you entered it when signing up
+                            email address <span th:text="${data.email}"> </span> yeah, and that you entered it when signing up
                             for Waze
                             Carpool.</p>
-                        <a href="#" style="	display: block;
+                        <a th:href="@{http://localhost:8080/api/v1/auth/check-verify(email= ${data.email}, verifiedCode = ${data.verifiedCode})}" style="	display: block;
 	width: 100%;
 	max-width: 300px;
 	background: #20DA9C;

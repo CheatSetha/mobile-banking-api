@@ -1,8 +1,12 @@
 package com.example.mobilebankingapi.api.user;
 
+import com.example.mobilebankingapi.api.auth.AuthService;
+import com.example.mobilebankingapi.api.auth.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,9 +19,12 @@ public class User {
     private String studentCardId;
     private Boolean isStudent;
     private Boolean isDeleted;
-//    for auth purposes
-private String email;
+    //    for auth purposes
+    private String email;
     private String password;
     private Boolean isVerified;
     private String verifiedCode;
+
+//    roles of user
+    private List<Role> roles;
 }
