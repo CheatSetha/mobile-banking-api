@@ -55,7 +55,7 @@ public class AuthProvider {
 
     public String buildLoadUserRolesSql() {
         return new SQL() {{
-            SELECT("*");
+            SELECT("r.id, r.name");
             FROM("roles AS r");
             INNER_JOIN("users_roles AS ur ON ur.role_id  = r.id");
             WHERE("ur.user_id = #{id}");

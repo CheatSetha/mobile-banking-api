@@ -47,7 +47,8 @@ public interface AuthMapper {
 
     @UpdateProvider(type = AuthProvider.class, method = "buildUpdateVerifiedCodeSql")
     boolean updateVerifiedCode(@Param("email") String email, @Param("verifiedCode") String verifiedCode);
-@SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
+
+    @SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
     List<Role> loadUserRoles(@Param("userId") Integer userId);
 }
 

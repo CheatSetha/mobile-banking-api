@@ -46,7 +46,6 @@ public class AuthServiceImpl implements AuthService {
             }
 
         }
-        authMapper.register(user);
     }
 
     @Override
