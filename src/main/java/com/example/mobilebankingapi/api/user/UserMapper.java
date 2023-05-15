@@ -42,19 +42,13 @@ public interface UserMapper {
     @Select("SELECT * FROM users WHERE name ILIKE CONCAT('%',#{name},'%')")
     @ResultMap("userResultMap")
     List<User> searchByName(@Param("name") String name);
-
 //    search user by student id card
     @Select("SELECT * FROM users WHERE student_card_id ILIKE CONCAT('%',#{studentCardId},'%')")
     @ResultMap("userResultMap")
     List<User> searchByStudentIdCard(@Param("studentCardId") String studentCardId);
-
 //    search user by name or student card id
     @SelectProvider(type = UserProvider.class, method = "buildSearchSql")
     @ResultMap("userResultMap")
     List<User> search(@Param("name") String name, @Param("studentCardId") String studentCardId);
-
-
-
-
 
 }

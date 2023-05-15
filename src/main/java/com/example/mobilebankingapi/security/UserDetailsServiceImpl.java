@@ -20,8 +20,6 @@ private  final AuthMapper authMapper;
                         new UsernameNotFoundException("User not found"));
         CustomUserDetails customUserDetails = new CustomUserDetails();
         customUserDetails.setUser(user);
-
-        return null;
-
+        return customUserDetails;
     }
 }

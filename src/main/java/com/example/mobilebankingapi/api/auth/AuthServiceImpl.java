@@ -44,7 +44,6 @@ public class AuthServiceImpl implements AuthService {
                 log.info("id : {}", user.getId());
               authMapper.createUserRoles(user.getId(), role);
             }
-
         }
     }
 
@@ -86,7 +85,6 @@ public class AuthServiceImpl implements AuthService {
         User user = authMapper.selectByEmailAndVerified(email, verifiedCode).orElseThrow(()
                 -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Email or verified code not found"));
 //if user exist set isVerified true and verifiedCode null after check verified code
-
         log.info("User: {}", user.getVerifiedCode());
 
         if (!user.getIsVerified()) {
