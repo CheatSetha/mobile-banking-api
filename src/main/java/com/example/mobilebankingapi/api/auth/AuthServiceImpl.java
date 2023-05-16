@@ -90,6 +90,5 @@ public class AuthServiceImpl implements AuthService {
         if (!user.getIsVerified()) {
             authMapper.verify(email, verifiedCode);
         }
-
     }
 }

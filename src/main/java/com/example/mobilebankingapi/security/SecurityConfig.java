@@ -3,6 +3,7 @@ package com.example.mobilebankingapi.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -69,9 +70,10 @@ public class SecurityConfig {
 
         // Authorize URL mapping
         http.authorizeHttpRequests(request -> {
-            request.requestMatchers("/api/v1/users/**").hasRole("ADMIN");
-            request.requestMatchers("/api/v1/account-types/**", "/api/v1/files/**").hasAnyRole("CUSTOMER", "ADMIN");
-            request.anyRequest().permitAll();
+            request.requestMatchers("/api/v1/auth/**").permitAll();
+            request.requestMatchers(HttpMethod.GET,"/api/v1/users/**", "/api/v1/files/**").hasAnyRole("SYSTEM", "ADMIN");
+            request.requestMatchers(HttpMethod.POST,"/api/v1/users/**").hasRole("SYSTEM");
+            request.anyRequest().authenticated();
         });
 
         // Security mechanism

@@ -52,14 +52,12 @@ public class AuthProvider {
             VALUES("role_id", "#{roleId}");
         }}.toString();
     }
-
     public String buildLoadUserRolesSql() {
         return new SQL() {{
             SELECT("r.id, r.name");
             FROM("roles AS r");
             INNER_JOIN("users_roles AS ur ON ur.role_id  = r.id");
-            WHERE("ur.user_id = #{id}");
+            WHERE("ur.user_id = #{userId}");
         }}.toString();
-
     }
 }
