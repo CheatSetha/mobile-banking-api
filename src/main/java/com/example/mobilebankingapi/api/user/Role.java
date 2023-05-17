@@ -1,4 +1,4 @@
-package com.example.mobilebankingapi.api.auth;
+package com.example.mobilebankingapi.api.user;
 
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -6,14 +6,15 @@ import org.springframework.security.core.GrantedAuthority;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor@Builder
+@AllArgsConstructor
+@Builder
 public class Role implements GrantedAuthority {
     private Integer id;
     private String name;
 
     @Override
     public String getAuthority() {
-        return "ROLE_"+name;
+        return "ROLE_" + name;
 
     }
 }

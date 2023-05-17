@@ -43,6 +43,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf:3.0.6'
 
 
+//    for validate password
+    implementation group: 'org.passay', name: 'passay', version: '1.6.3'
+
 }
 
 tasks.named('test') {

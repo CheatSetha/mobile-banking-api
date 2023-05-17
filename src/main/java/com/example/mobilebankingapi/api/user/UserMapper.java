@@ -1,5 +1,6 @@
 package com.example.mobilebankingapi.api.user;
 
+import com.example.mobilebankingapi.api.auth.AuthProvider;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -12,24 +13,32 @@ public interface UserMapper {
     @InsertProvider(type = UserProvider.class, method = "buildInsertSql")
     @Options(useGeneratedKeys = true, keyProperty = "u.id")
     void insert(@Param("u") User user);
+
     @SelectProvider(type = UserProvider.class, method = "buildSelectByIdSql")
     @Results(id = "userResultMap", value = {
             @Result(column = "student_card_id", property = "studentCardId"),
             @Result(column = "is_student", property = "isStudent"),
-            @Result(column = "is_deleted", property = "isDeleted")
+            @Result(column = "is_deleted", property = "isDeleted"),
+            @Result(property = "roles", column = "id",
+                    many = @Many(select = "loadUserRoles"))
+
     })
-    Optional<User> selectById(@Param("id") Integer   id);
+    Optional<User> selectById(@Param("id") Integer id);
+
     @Select("SELECT EXISTS(SELECT * FROM users WHERE id = #{id})")
     boolean isUserExist(@Param("id") Integer id);
+
     @DeleteProvider(type = UserProvider.class, method = "buildDeleteByIdSql")
     void deleteById(@Param("id") Integer id);
+
     @UpdateProvider(type = UserProvider.class, method = "buildUpdateIsDeletedStatusSql")
-    void updateIsDeletedStatus(@Param("id") Integer id , @Param("isDeleted") Boolean isDeleted);
+    void updateIsDeletedStatus(@Param("id") Integer id, @Param("isDeleted") Boolean isDeleted);
+
     @SelectProvider(type = UserProvider.class, method = "buildSelectAllSql")
     @ResultMap("userResultMap")
     List<User> selectAll();
 
-//    with pagination
+    //    with pagination
     @SelectProvider(type = UserProvider.class, method = "buildSelectSql")
     @ResultMap("userResultMap")
     List<User> select();
@@ -38,17 +47,28 @@ public interface UserMapper {
     @UpdateProvider(type = UserProvider.class, method = "buildUpdateSql")
     void update(@Param("u") User user);
 
-//    search user by name
+    //    search user by name
     @Select("SELECT * FROM users WHERE name ILIKE CONCAT('%',#{name},'%')")
     @ResultMap("userResultMap")
     List<User> searchByName(@Param("name") String name);
-//    search user by student id card
+
+    //    search user by student id card
     @Select("SELECT * FROM users WHERE student_card_id ILIKE CONCAT('%',#{studentCardId},'%')")
     @ResultMap("userResultMap")
     List<User> searchByStudentIdCard(@Param("studentCardId") String studentCardId);
-//    search user by name or student card id
+
+    //    search user by name or student card id
     @SelectProvider(type = UserProvider.class, method = "buildSearchSql")
     @ResultMap("userResultMap")
     List<User> search(@Param("name") String name, @Param("studentCardId") String studentCardId);
+
+    @Select("SELECT EXISTS(SELECT * FROM users WHERE email = #{email})")
+    boolean isUserExistByEmail(@Param("email") String email);
+
+    @SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
+    List<Role> loadUserRoles(@Param("userId") Integer userId);
+
+    @Select("SELECT EXISTS(SELECT * FROM roles WHERE id = #{roleId})")
+    boolean checkRoleId(Integer roleId);
 
 }

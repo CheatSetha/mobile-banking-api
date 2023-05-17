@@ -53,7 +53,6 @@ public class SecurityConfig {
 //        userDetailsManager.createUser(user);
 //        return userDetailsManager;
 //    }
-
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
@@ -61,30 +60,31 @@ public class SecurityConfig {
         auth.setUserDetailsService(userDetailsService);
         return auth;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // Disable CSRF
+        // Disable CSRF in order to not use form login
         http.csrf(AbstractHttpConfigurer::disable);
 
         // Authorize URL mapping
         http.authorizeHttpRequests(request -> {
             request.requestMatchers("/api/v1/auth/**").permitAll();
-            request.requestMatchers(HttpMethod.GET,"/api/v1/users/**", "/api/v1/files/**").hasAnyRole("SYSTEM", "ADMIN");
-            request.requestMatchers(HttpMethod.POST,"/api/v1/users/**").hasRole("SYSTEM");
+            request.requestMatchers(HttpMethod.GET,"/api/v1/users/**", "/api/v1/files/**")
+                    .hasAnyRole("SYSTEM", "ADMIN");
+            request.requestMatchers(HttpMethod.POST,"/api/v1/users/**")
+                    .hasRole("SYSTEM");
+//            authenticated is a method that has been allowed to all user
+//            Specify that URLs are allowed by any authenticated user.
             request.anyRequest().authenticated();
         });
 
-        // Security mechanism
+        // Security mechanism for basic authentication
         http.httpBasic();
 
         // Make security http STATELESS
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
         return http.build();
     }
-
 }
 

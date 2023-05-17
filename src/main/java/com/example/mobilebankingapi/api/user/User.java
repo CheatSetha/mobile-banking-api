@@ -1,7 +1,5 @@
 package com.example.mobilebankingapi.api.user;
 
-import com.example.mobilebankingapi.api.auth.AuthService;
-import com.example.mobilebankingapi.api.auth.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

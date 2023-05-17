@@ -1,6 +1,7 @@
 package com.example.mobilebankingapi.api.auth;
 
 
+import com.example.mobilebankingapi.api.user.Role;
 import com.example.mobilebankingapi.api.user.User;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,6 @@ public interface AuthMapper {
                     many = @Many(select = "loadUserRoles"))
     })
     Optional<User> selectByEmail(@Param("email") String email);
-
 
 
     @Select("SELECT * FROM users WHERE email = #{email} AND is_deleted = FALSE AND is_verified = TRUE")
