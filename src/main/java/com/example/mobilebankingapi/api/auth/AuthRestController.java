@@ -1,6 +1,8 @@
 package com.example.mobilebankingapi.api.auth;
 
 
+import com.example.mobilebankingapi.api.auth.wep.AuthDto;
+import com.example.mobilebankingapi.api.auth.wep.LogInDto;
 import com.example.mobilebankingapi.api.auth.wep.RegisterDto;
 import com.example.mobilebankingapi.base.BaseRest;
 import jakarta.validation.Valid;
@@ -45,10 +47,11 @@ public class AuthRestController {
                 .data(email)
                 .build();
     }
-//    check verify code
+
+    //    check verify code
     @GetMapping("/check-verify")
     public BaseRest<?> checkVerify(@RequestParam String email, @RequestParam String verifiedCode) {
-       authService.checkVerify(email, verifiedCode);
+        authService.checkVerify(email, verifiedCode);
         log.info("Email: {}", email);
         log.info("Verified Code: {}", verifiedCode);
 
@@ -60,5 +63,19 @@ public class AuthRestController {
                 .data(email)
                 .build();
     }
-
+//    FOR LOG IN
+    @PostMapping("/login")
+    public BaseRest<?> login(@Valid @RequestBody LogInDto logInDto) {
+//        String token = authService.login(email, password);
+        AuthDto authDto = authService.login(logInDto);
+//        authService.login(logInDto);
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("You have been logged in successfully")
+                .timestamp(LocalDateTime.now())
+                .data(authDto)
+                .build();
     }
+
+}

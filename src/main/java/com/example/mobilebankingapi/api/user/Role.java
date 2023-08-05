@@ -3,6 +3,8 @@ package com.example.mobilebankingapi.api.user;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 public class Role implements GrantedAuthority {
     private Integer id;
     private String name;
+    private Set<Authority> authorities;
 
     @Override
     public String getAuthority() {

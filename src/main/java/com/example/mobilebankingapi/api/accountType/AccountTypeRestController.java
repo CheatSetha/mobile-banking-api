@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -17,14 +18,16 @@ public class AccountTypeRestController {
     private final AccountTypeService accountTypeService;
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_account:read')")
     //    <?> any type is okay
     public BaseRest<?> findAll() {
         var accountTypeDtoList = accountTypeService.findAll();
-        return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been found").timestamp(LocalDateTime.now())
+         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been found").timestamp(LocalDateTime.now())
                 .data(accountTypeDtoList).build();
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_account:write')")
     public BaseRest<?> createNewAccountType(@RequestBody @Valid CreateAccountTypeDto createAccountTypeDto) {
         AccountTypeDto accountTypeDto = accountTypeService.createNewAccountType(createAccountTypeDto);
         log.info("DTO + {}", createAccountTypeDto);
@@ -33,6 +36,7 @@ public class AccountTypeRestController {
     }
 
     @GetMapping("/{id}")
+
     public BaseRest<?> findAccountTypeById(@PathVariable("id") Integer id) {
         AccountTypeDto accountTypeDto = accountTypeService.findAccountTypeById(id);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("Account type have been found").timestamp(LocalDateTime.now())

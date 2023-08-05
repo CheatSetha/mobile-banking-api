@@ -1,6 +1,7 @@
 package com.example.mobilebankingapi.api.auth;
 
 
+import com.example.mobilebankingapi.api.user.Authority;
 import com.example.mobilebankingapi.api.user.Role;
 import com.example.mobilebankingapi.api.user.User;
 import org.apache.ibatis.annotations.*;
@@ -57,6 +58,13 @@ public interface AuthMapper {
 
 
     @SelectProvider(type = AuthProvider.class, method = "buildLoadUserRolesSql")
+    @Result(column = "id", property = "authorities",
+            many = @Many(select = "loadUserAuthorities"))
     List<Role> loadUserRoles(@Param("userId") Integer userId);
+
+
+    @SelectProvider(type = AuthProvider.class, method = "buildLoadUserAuthoritiesSql")
+    List<Authority > loadUserAuthorities(Integer roleId);
+
 }
 

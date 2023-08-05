@@ -1,11 +1,17 @@
 package com.example.mobilebankingapi.security;
 
+import com.example.mobilebankingapi.api.user.Authority;
+import com.example.mobilebankingapi.api.user.Role;
 import com.example.mobilebankingapi.api.user.User;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
@@ -18,17 +24,26 @@ public class CustomUserDetails implements UserDetails {
 //    getAuthorities() set up roles and permissions
 
     private User user;
-//    in order to get roles and permissions we need to override getAuthorities() method
+
+    //    in order to get roles and permissions we need to override getAuthorities() method
 //    and return a collection of authorities granted to the user
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        for (Role role : user.getRoles()) {
+            authorities.add(new SimpleGrantedAuthority(role.getAuthority()));
+            for (Authority authority : role.getAuthorities()) {
+                authorities.add(new SimpleGrantedAuthority(authority.getName()));
+            }
+        }
+
+        return authorities;
     }
 
-//    getPassword() - returns the password used to authenticate the user
+    //    getPassword() - returns the password used to authenticate the user
     @Override
     public String getPassword() {
-        return user.getPassword() ;
+        return user.getPassword();
     }
 
     @Override
@@ -52,7 +67,8 @@ public class CustomUserDetails implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-//    isEnabled() - indicates whether the user is enabled or disabled. A disabled user cannot be authenticated.
+
+    //    isEnabled() - indicates whether the user is enabled or disabled. A disabled user cannot be authenticated.
     @Override
     public boolean isEnabled() {
         return true;

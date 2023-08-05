@@ -15,7 +15,7 @@ public interface UserService {
     Integer updateIsDeletedStatus(Integer id, boolean isDeleted);
     List<User> findAll();
 //    get all user with pagination
-    PageInfo<UserDto> findAllUser (int page , int limit);
+    PageInfo<UserDto> findAllUser (int page , int limitz);
 
     UserDto updateUser(Integer id, UpdateUserDto updateUserDto);
 //    search user by name

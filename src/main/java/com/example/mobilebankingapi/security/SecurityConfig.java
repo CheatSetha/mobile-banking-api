@@ -1,28 +1,51 @@
 package com.example.mobilebankingapi.security;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSelector;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.util.List;
+import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final PasswordEncoder encoder;
     private final UserDetailsService userDetailsService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
 
     // Define in-memory user
     /*
@@ -53,13 +76,26 @@ public class SecurityConfig {
 //        userDetailsManager.createUser(user);
 //        return userDetailsManager;
 //    }
+
+
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(){
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
         auth.setPasswordEncoder(encoder);
         auth.setUserDetailsService(userDetailsService);
         return auth;
     }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
@@ -67,24 +103,74 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
 
         // Authorize URL mapping
-        http.authorizeHttpRequests(request -> {
-            request.requestMatchers("/api/v1/auth/**").permitAll();
-            request.requestMatchers(HttpMethod.GET,"/api/v1/users/**", "/api/v1/files/**")
-                    .hasAnyRole("SYSTEM", "ADMIN");
-            request.requestMatchers(HttpMethod.POST,"/api/v1/users/**")
-                    .hasRole("SYSTEM");
-//            authenticated is a method that has been allowed to all user
-//            Specify that URLs are allowed by any authenticated user.
-            request.anyRequest().authenticated();
+        http.authorizeHttpRequests(auth -> {
+            auth.requestMatchers("/api/v1/auth/**").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:read");
+            auth.requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:write");
+            auth.requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:delete");
+            auth.requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:update");
+            auth.anyRequest().authenticated();
+//            auth.requestMatchers(HttpMethod.GET,"/api/v1/account-types/**").hasAnyAuthority("SCOPE_account:read");
         });
 
         // Security mechanism for basic authentication
-        http.httpBasic();
+//        http.httpBasic();
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())
+                )
+        );
+
+//        exception handling
+        http.exceptionHandling(exception -> {
+            exception.accessDeniedHandler(customAccessDeniedHandler);
+            exception.authenticationEntryPoint(customAuthenticationEntryPoint);
+        });
 
         // Make security http STATELESS
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
+
+    }
+
+    // use to generate key pair public and private key
+    @Bean
+    public KeyPair keyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    //    agorithsm to generate key pair
+    @Bean
+    public RSAKey rsaKey(KeyPair keyPair) {
+        return new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
+                .privateKey(keyPair.getPrivate())
+                .keyID(UUID.randomUUID().toString())
+                .build();
+    }
+
+    @Bean
+    public JWKSource<SecurityContext> jwkSource(RSAKey rsaKey) {
+        var jwkSet = new JWKSet(rsaKey);
+        return new JWKSource<SecurityContext>() {
+            @Override
+            public List<JWK> get(JWKSelector jwkSelector, SecurityContext context) throws KeySourceException {
+                return jwkSelector.select(jwkSet);
+            }
+        };
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(RSAKey rsaKey) throws JOSEException {
+        return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
+
+    }
+
+    //    in order to creat jwtEncoder we need jwkSource
+    @Bean
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
     }
 }
 

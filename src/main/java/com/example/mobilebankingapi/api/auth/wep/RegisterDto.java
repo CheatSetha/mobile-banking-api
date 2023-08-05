@@ -2,13 +2,14 @@ package com.example.mobilebankingapi.api.auth.wep;
 
 import com.example.mobilebankingapi.api.user.validator.email.EmailUnique;
 import com.example.mobilebankingapi.api.user.validator.password.Password;
+import com.example.mobilebankingapi.api.user.validator.password.PasswordMatch;
 import com.example.mobilebankingapi.api.user.validator.roles.RoleIdConstraints;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
-
+@PasswordMatch(password = "password", confirmedPassword = "confirmedPassword")
 public record RegisterDto(
         @NotBlank(message = "email required")
         @Email

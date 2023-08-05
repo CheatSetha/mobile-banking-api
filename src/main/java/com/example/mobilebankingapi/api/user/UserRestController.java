@@ -67,7 +67,7 @@ public class UserRestController {
     //learn from cher
     @GetMapping
     public BaseRest<?> findAllUser(@RequestParam(name = "page", required = false, defaultValue = "1") int page,
-                                   @RequestParam(name = "limit", required = false, defaultValue = "10") int limit
+                                   @RequestParam(name = "limit", required = false, defaultValue = "20") int limit
     ) {
         PageInfo<UserDto> userDtoPageInfo = userService.findAllUser(page, limit);
         return BaseRest.builder().status(true).code(HttpStatus.OK.value()).message("User have been found").timestamp(LocalDateTime.now())

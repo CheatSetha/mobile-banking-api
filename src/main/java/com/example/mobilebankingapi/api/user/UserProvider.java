@@ -13,6 +13,7 @@ public class UserProvider {
             VALUES("student_card_id","#{u.studentCardId}");
             VALUES("is_student","#{u.isStudent}");
         }}.toString();
+
     }
     public String buildSelectByIdSql(){
         return new SQL(){{

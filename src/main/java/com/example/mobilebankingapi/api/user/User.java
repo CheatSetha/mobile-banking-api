@@ -17,12 +17,9 @@ public class User {
     private String studentCardId;
     private Boolean isStudent;
     private Boolean isDeleted;
-    //    for auth purposes
     private String email;
     private String password;
     private Boolean isVerified;
     private String verifiedCode;
-
-//    roles of user
     private List<Role> roles;
 }
