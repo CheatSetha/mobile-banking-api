@@ -1,4 +1,4 @@
 package com.example.mobilebankingapi.api.auth.wep;
 
-public record AuthDto(String tokenType,String accessToken) {
+public record AuthDto(String tokenType,String accessToken, String refreshToken) {
 }

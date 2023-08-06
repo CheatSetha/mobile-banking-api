@@ -3,12 +3,15 @@ package com.example.mobilebankingapi.api.auth;
 import com.example.mobilebankingapi.api.auth.wep.AuthDto;
 import com.example.mobilebankingapi.api.auth.wep.LogInDto;
 import com.example.mobilebankingapi.api.auth.wep.RegisterDto;
+import com.example.mobilebankingapi.api.auth.wep.TokenDto;
 import com.example.mobilebankingapi.api.user.User;
 import com.example.mobilebankingapi.api.user.UserMapStruct;
 import com.example.mobilebankingapi.utils.MailUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,9 +19,12 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,11 +44,17 @@ public class AuthServiceImpl implements AuthService {
     private final UserMapStruct userMapStruct;
     private final PasswordEncoder encoder;
     private final MailUtil mailUtil;
-    private final JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtAccessTokenEncoder;
     private final DaoAuthenticationProvider daoAuthenticationProvider;
-
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private JwtEncoder jwtRefreshTokenEncoder;  // inject bean with specific name
     @Value("${spring.mail.username}")
     private String appMail;
+
+    @Autowired
+    public void setJwtRefreshTokenEncoder(@Qualifier("jwtRefreshTokenEncoder") JwtEncoder jwtRefreshTokenEncoder) {
+        this.jwtRefreshTokenEncoder = jwtRefreshTokenEncoder;
+    }
 
     @Transactional
     @Override
@@ -118,26 +130,37 @@ public class AuthServiceImpl implements AuthService {
                 .map(GrantedAuthority::getAuthority)
                 .filter(auth -> !auth.startsWith("ROLE_"))
                 .collect(Collectors.joining(" "));
-//        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-//        authorities.add(new SimpleGrantedAuthority("WRITE"));
-//        authorities.add(new SimpleGrantedAuthority("READ"));
-//        authorities.add(new SimpleGrantedAuthority("DELETE"));
-//        authorities.add(new SimpleGrantedAuthority("UPDATE"));
-//        authorities.add(new SimpleGrantedAuthority("FULL_CONTROL"));
-//    String scope = authorities.stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(" "));
-        JwtClaimsSet claimsSet = JwtClaimsSet.builder().
-                 issuer("self")
+
+        JwtClaimsSet jwtAccessTokenClaimSet = JwtClaimsSet.builder().
+                issuer("self")
                 .issuedAt(now)
-                .expiresAt(now.plus(1, ChronoUnit.DAYS))
+                .expiresAt(now.plus(1, ChronoUnit.SECONDS))
                 .subject(authentication.getName())
                 .claim("scope", scope)
                 .build();
-        String accessToken = jwtEncoder.encode(
-                JwtEncoderParameters.from(claimsSet)
+
+
+        JwtClaimsSet jwtRefreshTokenClaimsSet = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plus(30, ChronoUnit.DAYS))
+                .subject(authentication.getName())
+                .claim("scope", scope)
+                .build();
+
+        //get access token
+        String accessToken = jwtAccessTokenEncoder.encode(
+                JwtEncoderParameters.from(jwtAccessTokenClaimSet)
         ).getTokenValue();
-        return new AuthDto("Bearer ", accessToken);
+
+
+        //get refresh token
+        String refreshToken = jwtRefreshTokenEncoder.encode(
+                JwtEncoderParameters.from(jwtRefreshTokenClaimsSet)
+        ).getTokenValue();
+        return new AuthDto("Bearer ", accessToken, refreshToken); // បញ្ចូលក្នុងកូដauthDto
+
+
 //        daoAuthenticationProvider.authenticate(authentication);
 //        log.info("User: {}", authentication);
 ////        logic on basic authorization header
@@ -149,5 +172,40 @@ public class AuthServiceImpl implements AuthService {
 //
 //
 //        return new AuthDto(String.format("Basic %s", encoding));
+    }
+
+    @Override
+    public AuthDto refreshToken(TokenDto tokenDto) {
+        Authentication authentication = new BearerTokenAuthenticationToken(tokenDto.refreshToken());
+        authentication = jwtAuthenticationProvider.authenticate(authentication);
+
+//use jwt object to get claims
+        Jwt jwt = (Jwt) authentication.getCredentials();
+        Instant now = Instant.now();
+        log.info("SCOPE: {}", jwt.getClaimAsString("scope"));
+
+        JwtClaimsSet accessTokenClaimSet = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .expiresAt(now.plus(1, ChronoUnit.SECONDS))
+                .subject(jwt.getSubject())
+                .claim("scope", jwt.getClaimAsString("scope"))
+                .build();
+
+        JwtClaimsSet refreshTokenClaimSet = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .expiresAt(now.plus(30, ChronoUnit.DAYS))
+                .subject(jwt.getSubject())
+                .claim("scope", jwt.getClaimAsString("scope"))
+                .build();
+
+        String accessToken = jwtAccessTokenEncoder.encode(
+                JwtEncoderParameters.from(accessTokenClaimSet)
+        ).getTokenValue();
+
+
+        return new AuthDto("Bearer ", accessToken, tokenDto.refreshToken());
+
     }
 }

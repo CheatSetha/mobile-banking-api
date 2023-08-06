@@ -4,6 +4,7 @@ package com.example.mobilebankingapi.api.auth;
 import com.example.mobilebankingapi.api.auth.wep.AuthDto;
 import com.example.mobilebankingapi.api.auth.wep.LogInDto;
 import com.example.mobilebankingapi.api.auth.wep.RegisterDto;
+import com.example.mobilebankingapi.api.auth.wep.TokenDto;
 import com.example.mobilebankingapi.base.BaseRest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,18 @@ public class AuthRestController {
                 .status(true)
                 .code(HttpStatus.OK.value())
                 .message("You have been logged in successfully")
+                .timestamp(LocalDateTime.now())
+                .data(authDto)
+                .build();
+    }
+    @PostMapping("/refresh")
+    public BaseRest<?> refresh(@RequestBody TokenDto tokenDto){
+        AuthDto authDto = authService.refreshToken(tokenDto);
+//        authService.login(logInDto);
+        return BaseRest.builder()
+                .status(true)
+                .code(HttpStatus.OK.value())
+                .message("Refresh token have been refreshed successfully")
                 .timestamp(LocalDateTime.now())
                 .data(authDto)
                 .build();

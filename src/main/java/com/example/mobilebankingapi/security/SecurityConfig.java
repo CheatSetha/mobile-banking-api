@@ -1,6 +1,6 @@
 package com.example.mobilebankingapi.security;
 
-import com.nimbusds.jose.JOSEException;
+import com.example.mobilebankingapi.utils.KeyUtil;
 import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSelector;
@@ -11,7 +11,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -45,6 +46,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final KeyUtil keyUtil;
 
 
     // Define in-memory user
@@ -86,6 +88,15 @@ public class SecurityConfig {
         return auth;
     }
 
+    @Bean(name = "jwtAuthenticationProvider")
+    public JwtAuthenticationProvider jwtAuthenticationProvider(){
+        JwtAuthenticationProvider provider = new JwtAuthenticationProvider(jwtRefreshTokenDecoder());
+        provider.setJwtAuthenticationConverter(jwtAuthenticationConverter());
+        return provider;
+
+    }
+
+
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -104,12 +115,9 @@ public class SecurityConfig {
 
         // Authorize URL mapping
         http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/api/v1/auth/**").permitAll();
-            auth.requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:read");
-            auth.requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:write");
-            auth.requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:delete");
-            auth.requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyAuthority("SCOPE_admin:update");
-            auth.anyRequest().authenticated();
+            auth.requestMatchers("/api/v1/**").permitAll();
+
+            auth.anyRequest().permitAll();
 //            auth.requestMatchers(HttpMethod.GET,"/api/v1/account-types/**").hasAnyAuthority("SCOPE_account:read");
         });
 
@@ -162,15 +170,41 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtDecoder jwtDecoder(RSAKey rsaKey) throws JOSEException {
-        return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
+    @Primary
+    public JwtDecoder jwtAccessTokenDecoder() {
+        return NimbusJwtDecoder.withPublicKey(keyUtil.getAccessTokenPublicKey()).build();
+
+    }
+
+    @Bean(name = "jwtRefreshTokenDecoder")
+    public JwtDecoder jwtRefreshTokenDecoder() {
+        return NimbusJwtDecoder.withPublicKey(keyUtil.getRefreshTokenPublicKey()).build();
 
     }
 
     //    in order to creat jwtEncoder we need jwkSource
+
     @Bean
-    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
-        return new NimbusJwtEncoder(jwkSource);
+    @Primary
+    public JwtEncoder jwtAccessTokenEncoder() {
+
+        JWK jwk = new RSAKey.Builder(keyUtil.getAccessTokenPublicKey())
+                .privateKey(keyUtil.getAccessTokenPrivateKey())
+                .build();
+        return new NimbusJwtEncoder(((jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(jwk))));
+
     }
+    @Bean(name = "jwtRefreshTokenEncoder")
+    public JwtEncoder jwtRefreshTokenEncoder() {
+        JWK jwk = new RSAKey.Builder(keyUtil.getRefreshTokenPublicKey())
+                .privateKey(keyUtil.getRefreshTokenPrivateKey())
+                .build();
+        return new NimbusJwtEncoder(((jwkSelector, securityContext) -> jwkSelector.select(new JWKSet(jwk))));
+
+    }
+
 }
+
+
+
 
