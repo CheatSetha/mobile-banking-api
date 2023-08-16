@@ -43,8 +43,6 @@ public class PasswordMatchConstraintsValidator implements ConstraintValidator<Pa
                     .addConstraintViolation()
                     .disableDefaultConstraintViolation();
         }
-
-
         return isValid;
     }
 }

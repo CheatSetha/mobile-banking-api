@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 public class EmailUniqueConstraintsValidator implements ConstraintValidator<EmailUnique, String> {
     private final UserMapper userMapper;
 
-
-
     /**
      * Implements the validation logic.
      * @param email object to validate

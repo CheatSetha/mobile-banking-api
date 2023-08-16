@@ -12,7 +12,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Constraint(validatedBy = PasswordConstraintsValidator.class)
 public @interface Password {
-    String message() default "kak password ដូរដាក់ថ្មី";
+    String message() default "password is not valid";
 
     Class<?>[] groups() default { };
 
